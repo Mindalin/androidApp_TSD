@@ -30,23 +30,13 @@ interface ClientApi {
     ): Response<Client>
 
     @PUT("clients/by-name")
-    @FormUrlEncoded
     suspend fun updateClient(
-        @Field("first_name") firstName: String,
-        @Field("last_name") lastName: String,
-        @Field("new_first_name") newFirstName: String?,
-        @Field("new_last_name") newLastName: String?,
-        @Field("new_middle_name") newMiddleName: String?,
-        @Field("new_birth_date") newBirthDate: String?,
-        @Field("new_phone") newPhone: String?,
-        @Field("new_address") newAddress: String?
+        @Body request: ClientUpdateRequest
     ): Response<Client>
 
-    @DELETE("clients/by-name")
-    @FormUrlEncoded
+    @DELETE("clients/{client_id}")
     suspend fun deleteClient(
-        @Field("first_name") firstName: String,
-        @Field("last_name") lastName: String
+        @Path("client_id") clientId: Int
     ): Response<Client>
 
     @GET("products")
@@ -77,10 +67,9 @@ interface ClientApi {
         @Part image: MultipartBody.Part
     ): Response<Product>
 
-    @DELETE("products/by-name")
-    @FormUrlEncoded
+    @DELETE("products/{product_id}")
     suspend fun deleteProduct(
-        @Field("name") name: String
+        @Path("product_id") productId: Int
     ): Response<Product>
 
     @GET("orders")

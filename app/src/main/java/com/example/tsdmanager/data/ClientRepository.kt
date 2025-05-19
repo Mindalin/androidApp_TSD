@@ -49,7 +49,7 @@ class ClientRepository(private val token: String) {
         return clientApi.createClient(
             client.firstName,
             client.lastName,
-            client.middleName,
+            client.middleName ?: "",
             client.birthDate,
             client.phone,
             client.address
@@ -61,20 +61,21 @@ class ClientRepository(private val token: String) {
         lastName: String,
         newClient: Client
     ): Response<Client> {
-        return clientApi.updateClient(
-            firstName,
-            lastName,
-            newClient.firstName,
-            newClient.lastName,
-            newClient.middleName,
-            newClient.birthDate,
-            newClient.phone,
-            newClient.address
+        val updateRequest = ClientUpdateRequest(
+            first_name = firstName,
+            last_name = lastName,
+            new_first_name = newClient.firstName,
+            new_last_name = newClient.lastName,
+            new_middle_name = newClient.middleName,
+            new_birth_date = newClient.birthDate,
+            new_phone = newClient.phone,
+            new_address = newClient.address
         )
+        return clientApi.updateClient(updateRequest)
     }
 
-    suspend fun deleteClient(firstName: String, lastName: String): Response<Client> {
-        return clientApi.deleteClient(firstName, lastName)
+    suspend fun deleteClient(clientId: Int): Response<Client> {
+        return clientApi.deleteClient(clientId)
     }
 
     suspend fun getProducts(skip: Int, limit: Int): List<Product> {
@@ -113,8 +114,8 @@ class ClientRepository(private val token: String) {
         return clientApi.updateProductImage(nameBody, imagePart)
     }
 
-    suspend fun deleteProduct(name: String): Response<Product> {
-        return clientApi.deleteProduct(name)
+    suspend fun deleteProduct(productId: Int): Response<Product> {
+        return clientApi.deleteProduct(productId)
     }
 
     suspend fun getOrders(skip: Int, limit: Int): List<Order> {
@@ -149,13 +150,12 @@ class ClientRepository(private val token: String) {
         return clientApi.downloadReceipt(identifier)
     }
 
-    // Метод для проверки валидности токена через /users/me
     suspend fun validateToken(): Boolean {
         return try {
             clientApi.getCurrentUser()
-            true // Если запрос успешен, токен валиден
+            true
         } catch (e: Exception) {
-            false // Если запрос не удался (например, 401), токен невалиден
+            false
         }
     }
 }

@@ -59,7 +59,7 @@ fun CatalogScreenPreviewContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Каталог") },
+                title = {  },
                 actions = {
                     OutlinedTextField(
                         value = localSearchQuery,

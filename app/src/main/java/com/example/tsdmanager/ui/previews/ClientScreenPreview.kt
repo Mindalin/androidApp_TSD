@@ -2,52 +2,61 @@ package com.example.tsdmanager.ui.previews
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.tsdmanager.data.Client
-import com.example.tsdmanager.ui.ClientCard
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClientScreenPreviewContent(
     clients: List<Client> = emptyList(),
     errorMessage: String = "",
     searchQuery: String = "",
     onSearchQueryChange: (String) -> Unit = {},
+    onCreateClient: () -> Unit = {},
     onEditClient: (Client) -> Unit = {},
     onDeleteClient: (Client) -> Unit = {},
-    onCreateClient: () -> Unit = {}
+    onCallClick: (String) -> Unit = {}
 ) {
     var localSearchQuery by remember { mutableStateOf(searchQuery) }
+    var isSearchExpanded by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Клиенты") },
-                actions = {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Заголовок и поиск
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Клиенты",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.weight(1f)
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Иконка поиска или поле ввода
+                if (isSearchExpanded) {
                     OutlinedTextField(
                         value = localSearchQuery,
                         onValueChange = {
@@ -55,31 +64,136 @@ fun ClientScreenPreviewContent(
                             onSearchQueryChange(it)
                         },
                         label = { Text("Поиск по имени") },
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier
+                            .width(200.dp)
+                            .height(56.dp),
+                        trailingIcon = {
+                            IconButton(onClick = { isSearchExpanded = false }) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Свернуть поиск"
+                                )
+                            }
+                        }
+                    )
+                } else {
+                    IconButton(onClick = { isSearchExpanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Раскрыть поиск"
+                        )
+                    }
+                }
+                // Кнопка добавления клиента
+                IconButton(onClick = onCreateClient) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Добавить клиента"
                     )
                 }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onCreateClient) {
-                Icon(Icons.Default.Add, contentDescription = "Создать клиента")
             }
         }
-    ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
-            if (errorMessage.isNotEmpty()) {
-                Text(
-                    text = errorMessage,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
+
+        if (errorMessage.isNotEmpty()) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+
+        // Используем Column с прокруткой
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
+            clients.forEach { client ->
+                ClientCardWithActionsPreview(
+                    client = client,
+                    onEditClick = { onEditClient(client) },
+                    onDeleteClick = { onDeleteClient(client) },
+                    onCallClick = { phone -> onCallClick(phone) }
                 )
             }
-            LazyColumn {
-                items(clients) { client ->
-                    ClientCard(
-                        client = client,
-                        onEditClick = { onEditClient(client) },
-                        onDeleteClick = { onDeleteClient(client) }
+        }
+    }
+}
+
+@Composable
+fun ClientCardWithActionsPreview(
+    client: Client,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onCallClick: (String) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                // Основная информация
+                Text(
+                    text = "${client.lastName} ${client.firstName}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                client.middleName?.let {
+                    Text(
+                        text = "Отчество: $it",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                // Подробная информация (всегда раскрыта)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Дата рождения: ${client.birthDate}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Телефон: ${client.phone}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Адрес: ${client.address}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Row {
+                // Кнопка "Редактировать"
+                IconButton(onClick = onEditClick) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Редактировать"
+                    )
+                }
+                // Кнопка "Удалить"
+                IconButton(onClick = onDeleteClick) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Удалить"
+                    )
+                }
+                // Кнопка "Позвонить"
+                IconButton(onClick = {
+                    onCallClick(client.phone)
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Phone,
+                        contentDescription = "Позвонить"
                     )
                 }
             }
@@ -87,8 +201,7 @@ fun ClientScreenPreviewContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = false, backgroundColor = 0xFFFFFFFF, device = "id:pixel_5")
 @Composable
 fun ClientScreenPreview() {
     val mockClients = listOf(
@@ -96,8 +209,5 @@ fun ClientScreenPreview() {
         Client(2, "Мария", "Иванова", "Петровна", "1995-05-05", "+79997654321", "Санкт-Петербург")
     )
 
-    ClientScreenPreviewContent(
-        clients = mockClients,
-        errorMessage = ""
-    )
+    ClientScreenPreviewContent(clients = mockClients)
 }
