@@ -1,54 +1,60 @@
 package com.example.tsdmanager.ui.theme
 
-import android.app.Activity
-import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = ButtonBackground, // #3a3248 для кнопок
+    onPrimary = WhiteText, // #f9f9f9
+    secondary = DarkSecondary, // #5b5b85
+    onSecondary = WhiteText,
+    tertiary = DarkTertiary, // #ffa500
+    onTertiary = WhiteText,
+    background = DarkBackground, // #2a2238
+    onBackground = WhiteText,
+    surface = DarkSurface, // #231e2c
+    onSurface = WhiteText,
+    surfaceVariant = DarkSurface,
+    onSurfaceVariant = WhiteText,
+    outline = GreyOutline, // #ccc
+    error = ErrorColor,
+    onError = WhiteText
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+    primary = ButtonBackground, // #3a3248 для кнопок
+    secondary = LightSecondary, // #625b71
+    tertiary = LightTertiary, // #7D5260
+    background = LightBackground, // #FFFFFBFE
+    surface = LightBackground,
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    onBackground = DarkText, // #1C1B1F
+    onSurface = DarkText,
+    surfaceVariant = LightBackground,
+    onSurfaceVariant = DarkText,
+    outline = GreyOutline, // #ccc
+    error = ErrorColor,
+    onError = Color.White
 )
+
 
 @Composable
 fun TSDManagerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    Log.d("TSDManagerTheme", "Applying theme, darkTheme=$darkTheme, background=${colorScheme.background}")
 
     MaterialTheme(
         colorScheme = colorScheme,

@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -48,13 +49,7 @@ fun CatalogScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(4.dp)
                     ) {
-                        // Кнопка добавления товара
-                        IconButton(onClick = { /* Здесь можно добавить создание товара, если нужно */ }) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Добавить товар"
-                            )
-                        }
+
                         // Иконка поиска или поле ввода
                         if (isSearchExpanded) {
                             OutlinedTextField(
@@ -126,13 +121,13 @@ fun CatalogScreen(
                 Text(
                     text = viewModel.errorMessage.value,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(8.dp)
                 )
             }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(4.dp),
+                contentPadding = PaddingValues(2.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -173,7 +168,7 @@ fun ProductCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(6.dp)
             .height(280.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -224,12 +219,12 @@ fun ProductCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = "Запас: ${product.stock}",
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+//                Text(
+//                    text = "Запас: ${product.stock}",
+//                    style = MaterialTheme.typography.bodySmall,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis
+//                )
             }
 
             // Кнопки действий (внизу карточки)
@@ -243,7 +238,7 @@ fun ProductCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(onClick = onDecrease) {
-                            Icon(Icons.Default.Clear, contentDescription = "Уменьшить")
+                            Icon(Icons.Default.Remove, contentDescription = "Уменьшить")
                         }
                         Text(text = quantity.toString())
                         if (quantity < product.stock) {
